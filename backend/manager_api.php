@@ -348,7 +348,7 @@ switch ($endpoint) {
         }
         $transactionID = $_GET['TransactionID'] ?? '';
         if (!$transactionID) {
-            echo json_encode(['success' => false, 'message' => 'Missing TransactionID']);
+            echo json_encode(['success' => false, 'message' => 'Missing TransactionID']);       
             exit;
         }
         try {

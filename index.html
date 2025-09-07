@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockLens - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6; /* Blue-500 */
+            --primary-light: #eff6ff; /* Blue-50 */
+            --gray-100: #f3f4f6;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--gray-100);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 448px; /* 28rem */
+            border: 1px solid var(--gray-300);
+        }
+        
+        .role-btn {
+            border: 2px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .role-btn.active {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .role-btn:hover:not(.active) {
+            border-color: var(--gray-300);
+            background-color: var(--gray-100);
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            outline: none;
+        }
+        
+        .password-field {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        
+        .password-field.active {
+            max-height: 100px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center text-5xl text-blue-500 mb-2">
+                <i class="fas fa-boxes"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900">StockLens</h1>
+            <p class="text-sm text-gray-500 mt-1">Ministry of Finance Inventory System</p>
+        </div>
+        
+        <form id="loginForm" action="login.php" method="POST" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Your Role</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="role-btn p-3 rounded-lg text-center cursor-pointer active" data-role="viewer">
+                        <i class="fas fa-eye text-2xl mb-2 text-gray-700 block transition-colors"></i>
+                        <span class="text-sm font-semibold">Viewer</span>
+                    </div>
+                    <div class="role-btn p-3 rounded-lg text-center cursor-pointer" data-role="store_manager">
+                        <i class="fas fa-user-cog text-2xl mb-2 text-gray-700 block transition-colors"></i>
+                        <span class="text-sm font-semibold">Store Manager</span>
+                    </div>
+                    <div class="role-btn p-3 rounded-lg text-center cursor-pointer" data-role="system_manager">
+                        <i class="fas fa-user-shield text-2xl mb-2 text-gray-700 block transition-colors"></i>
+                        <span class="text-sm font-semibold">System Manager</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input type="text" id="username" name="username" class="input-field w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400" placeholder="Enter your username" required>
+            </div>
+            
+            <div class="password-field" id="passwordField">
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input type="password" id="password" name="password" class="input-field w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400" placeholder="Enter your password">
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-blue-500/50">
+                Log in
+            </button>
+        </form>
+        
+        <div id="errorMessage" class="text-sm text-red-500 text-center mt-4 hidden"></div>
+    </div>
+
+    <script>
+        const roleButtons = document.querySelectorAll('.role-btn');
+        const passwordFieldContainer = document.getElementById('passwordField');
+        const passwordInput = document.getElementById('password');
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const roleUsernameMap = {
+            'viewer': 'viewer',
+            'store_manager': 'manager',
+            'system_manager': 'admin'
+        };
+
+        // Initialize state
+        passwordFieldContainer.classList.remove('active');
+        passwordInput.removeAttribute('required');
+
+        // Role selection logic
+        roleButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const activeRole = document.querySelector('.role-btn.active');
+                if (activeRole) {
+                    activeRole.classList.remove('active');
+                    activeRole.querySelector('i').classList.remove('text-blue-500');
+                }
+                btn.classList.add('active');
+                btn.querySelector('i').classList.add('text-blue-500');
+
+                const role = btn.dataset.role;
+
+                if (role === 'viewer') {
+                    passwordFieldContainer.classList.remove('active');
+                    passwordInput.removeAttribute('required');
+                    passwordInput.value = '';
+                } else {
+                    passwordFieldContainer.classList.add('active');
+                    passwordInput.setAttribute('required', 'required');
+                }
+
+                usernameInput.value = roleUsernameMap[role];
+                errorMessage.classList.add('hidden');
+            });
+        });
+
+        // Form submission validation
+        loginForm.addEventListener('submit', (e) => {
+            const activeRole = document.querySelector('.role-btn.active').dataset.role;
+            if (activeRole !== 'viewer' && !passwordInput.value) {
+                e.preventDefault();
+                errorMessage.textContent = 'Password is required for this role.';
+                errorMessage.classList.remove('hidden');
+            } else {
+                errorMessage.classList.add('hidden');
+            }
+        });
+
+        // Initial icon color
+        document.querySelector('.role-btn.active i').classList.add('text-blue-500');
+
+    </script>
+</body>
+</html>
