@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+// Check if user is logged in by verifying session variable
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    // Redirect to parent directory if not logged in
+    header("Location: ../../");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
